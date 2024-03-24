@@ -9,11 +9,19 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 
-/*  TO DO in next meet:
-    [] Separate the mess into functions/ different files (according to class diagram)
-    [] Re-organize the OutPut in GUI
-    [] Make Interface class for Display
-    [] For Other API calls: 5day weather, Air Pollution
+/*  TO DO:
+    1. Add multiple locations to check weather with longitude and latitude. []
+    2. Add multiple locations to check weather with city/country name. [X]
+    3. Show current weather conditions. [X]
+    4. Show basic information like “Feels like, minimum and maximum temperature” etc [X]
+    5. Show sunrise and sunset time. [X]
+    6. Show weather forecast for 5 days. []
+    7. Add timestamp for weather records []
+    8. Implement Cache Management []
+    9. Generate Notification for poor weather conditions. [X]
+    10. Show Air Pollution data. [in progress]
+    11. Generate Notification for poor air quality.  [X]
+    12. Show data about polluting gasses. [in progress]
 */
 
 class WeatherAPI extends API
@@ -54,13 +62,13 @@ class WeatherAPI extends API
             return "Error: " + e.getMessage();
         }
     }
-    //Useless info
+   
     @Override 
     public void setLatitude(double lati)
     {
         Latitude = lati;
     }
-    //Useless info
+
     @Override 
     public void setLongitude(double longi)
     {
@@ -68,57 +76,6 @@ class WeatherAPI extends API
     }
 }
 
-class WeatherInfo
-{
-    private double Temperature;
-    private double rainVol1h;
-    private double rainVol3h;
-    private int Visibility;
-    private double Humidity;
-    private double feelsLike;
-    private String weatherDescr;
-
-    public WeatherInfo(double temp, double rain1, double rain3, int visib, double humid,
-    double feels, String descr)
-    {
-        Temperature = temp;
-        rainVol1h = rain1;
-        rainVol3h = rain3;
-        Visibility = visib;
-        Humidity = humid;
-        feelsLike = feels;
-        weatherDescr = descr;
-    }
-
-     // Getters for WeatherInfo properties
-     public double getTemperature() {
-        return Temperature;
-    }
-
-    public double getRainVol1h() {
-        return rainVol1h;
-    }
-
-    public double getRainVol3h() {
-        return rainVol3h;
-    }
-
-    public int getVisibility() {
-        return Visibility;
-    }
-
-    public double getHumidity() {
-        return Humidity;
-    }
-
-    public double getFeelsLike() {
-        return feelsLike;
-    }
-
-    public String getWeatherDescr() {
-        return weatherDescr;
-    }
-}
 
 public class DisplayWeather extends JFrame implements AppHomepage{
     
@@ -167,7 +124,7 @@ public class DisplayWeather extends JFrame implements AppHomepage{
         System.out.println("Weather Description: " +obj.getWeatherDescr());
         System.out.println("Temperature: " + obj.getTemperature() + " C");
 
-        // Display elements from API return on console
+        // Display elements from API return on GUI
         String DisplayInfoGUI = "Visibility: " + obj.getVisibility() + "m\n" 
                             + "Humidity: " + obj.getHumidity() + "%\n"
                             + "Feels like: " + obj.getFeelsLike() + " C\n"
@@ -176,11 +133,49 @@ public class DisplayWeather extends JFrame implements AppHomepage{
                             + "Rain Volume (past 1h): " + obj.getRainVol1h() + "mm\n"
                             + "Rain Volume (past 3h): " + obj.getRainVol3h() + "mm\n";
         weatherOutputArea.append(DisplayInfoGUI);
-    }
 
-    private String convertUnixTime(long unixTime) {
-        java.util.Date time = new java.util.Date(unixTime * 1000);
-        return new java.text.SimpleDateFormat("HH:mm:ss").format(time);
+         // Generating Notification for Poor Weather Conditions
+        // 1) Heavy Rainfall
+        if (obj.getRainVol1h() >= 30.0) {
+            // Display Notification
+            JOptionPane.showMessageDialog(this, "Heavy rainfall! Rain volume in the past 1 hour: " + obj.getRainVol1h() + " mm", "Weather Alert", JOptionPane.WARNING_MESSAGE);
+        }
+    
+        // 2) Thunderstorms
+        JSONArray weatherArray = jsonObject.getJSONArray("weather");
+        for (int i = 0; i < weatherArray.length(); i++) {
+            JSONObject weatherObject = weatherArray.getJSONObject(i);
+            String mainWeather = weatherObject.getString("main");
+            if (mainWeather.equalsIgnoreCase("thunderstorm")) {
+                // Display Thunderstorm Alert
+                JOptionPane.showMessageDialog(this, "Thunderstorm alert!", "Weather Alert", JOptionPane.WARNING_MESSAGE);
+                break;
+            }
+        }
+
+        // 3) Check for extreme heat
+        if (obj.getTemperature() > 35.0) {
+            // Extreme Heat
+            JOptionPane.showMessageDialog(this, "Extreme heat warning! Temperature: " + obj.getTemperature() + " C", "Weather Alert", JOptionPane.WARNING_MESSAGE);
+        }
+    
+        // 4) Check for extreme cold
+        if (obj.getTemperature() < -10.0) {
+            // Extreme Cold
+            JOptionPane.showMessageDialog(this, "Extreme cold warning! Temperature: " + obj.getTemperature() + " C", "Weather Alert", JOptionPane.WARNING_MESSAGE);
+        }
+    
+        // 5) Check for snowfall or blizzard
+        if (obj.getWeatherDescr().toLowerCase().contains("snow") || obj.getWeatherDescr().toLowerCase().contains("blizzard")) {
+            // Snowfall/Blizzard
+            JOptionPane.showMessageDialog(this, "Snowfall/Blizzard alert!", "Weather Alert", JOptionPane.WARNING_MESSAGE);
+        }
+    
+        // 6) Check for hurricanes
+        if (obj.getWeatherDescr().toLowerCase().contains("hurricane")) {
+            // Hurricane
+            JOptionPane.showMessageDialog(this, "Hurricane alert!", "Weather Alert", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
     public void displaySunTimes()
@@ -197,18 +192,18 @@ public class DisplayWeather extends JFrame implements AppHomepage{
         long sunriseUnix = jsonObject.getJSONObject("sys").getLong("sunrise");
         long sunsetUnix = jsonObject.getJSONObject("sys").getLong("sunset");
 
-        // Convert Unix time to simple format
-        String sunrise = convertUnixTime(sunriseUnix);
-        String sunset = convertUnixTime(sunsetUnix);
+        // SunInfo Object that stores and converts Unix times
+       SunInfo sun_info = new SunInfo(sunsetUnix, sunriseUnix);
 
         // Display sunrise and sunset times
+        String sunrise = sun_info.getSunrise_Time();
+        String sunset = sun_info.getSunset_Time();
         System.out.println("Sunrise: " + sunrise);
         System.out.println("Sunset: " + sunset);
 
-        String sunTimesText = "Sunrise: " + sunrise + "\n"
-                            + "Sunset: " + sunset;
+        // String sunTimesText = "Sunrise: " + sunrise + "\n"
+        //                     + "Sunset: " + sunset;
 
-        weatherOutputArea.append(sunTimesText);
     }
 
     public void displayLocationForm()
