@@ -213,6 +213,15 @@ public class DisplayAirPollution extends JFrame implements AppHomepage{
         String location = locationField.getText();
 
         String weatherData = airPollution_api.APIcall(location);
+        JSONObject jsonObject = new JSONObject(weatherData);
+        double aqi = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("main").getDouble("aqi");
+
+        //Checking the AQI scale for poor or very poor air quality
+        if (aqi == 4 || aqi == 5) {
+        //Display notification
+        JOptionPane.showMessageDialog(this, "Poor air quality detected! AQI: " + aqi, "Air Quality Alert", JOptionPane.WARNING_MESSAGE);
+    }
+
 
         // Parse the JSON response
        /* JSONObject jsonObject = new JSONObject(weatherData);
