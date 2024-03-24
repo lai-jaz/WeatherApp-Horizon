@@ -68,7 +68,7 @@ class AirPollutionAPI extends API
                 String inputLine;
                 StringBuilder response = new StringBuilder();
                 while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine).append("\\n");
+                    response.append(inputLine).append("\n");
                 }
                 in.close();
                 return response.toString();
@@ -99,9 +99,20 @@ class AirPollutionAPI extends API
 
     public void getLatLong(String geoJSON)
     {
-        JSONObject jsonObject = new JSONObject(geoJSON);
-        double lat = jsonObject.getDouble("lat");
-        double longi = jsonObject.getDouble("lon");
+        double lat = 0, longi = 0;
+        JSONArray jsonArray = new JSONArray(geoJSON);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            // Access each object within the array
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            for (String key : jsonObject.keySet()) {
+                lat = jsonObject.getDouble("lat");
+                longi = jsonObject.getDouble("lon");
+
+            }
+        }
+
+        //JSONObject jsonObject = new JSONObject(geoJSON);
 
         this.setLatitude(lat);
         this.setLongitude(longi);
