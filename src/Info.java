@@ -1,9 +1,12 @@
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
 public class Info {
     
 }
 
 //---------------------------------------------------- Weather
-class WeatherInfo
+class WeatherInfo extends Info
 {
     private double Temperature;
     private double rainVol1h;
@@ -55,7 +58,7 @@ class WeatherInfo
     }
 }
 //------------------------------------------------------ Air Pollution
-class AirPollutionInfo {
+class AirPollutionInfo extends Info {
     private double AirQualityIndex;
     private double CO;
     private double NO;
@@ -115,18 +118,15 @@ class AirPollutionInfo {
         return SO2;
     }
 }
+
 //---------------------------------------------------Sunset / Sunrise timings
-class SunInfo
+class SunInfo extends Info
 {
     private String sunrise_time;
     private String sunset_time;
-    private long sunset_unix;
-    private long sunrise_unix;
 
     public SunInfo(long sunset_unix, long sunrise_unix)
     {
-        this.sunset_unix = sunset_unix;
-        this.sunrise_unix = sunrise_unix;
         sunrise_time = this.convertUnixTime(sunrise_unix);
         sunset_time = this.convertUnixTime(sunset_unix);
     }
@@ -148,4 +148,126 @@ class SunInfo
     }
 }
 
+// ------------------------------------------  DATE AND TIME
+class DateTime
+{
+    LocalDateTime datetime;
 
+    DateTime()
+    {
+        datetime = LocalDateTime.now();
+    }
+}
+
+// ------------------------------------------ LOCATION
+class Location
+{
+    double Latitude;
+    double Longitude;
+    String City;
+
+    public Location(double lat, double lon, String City)
+    {
+        Latitude = lat;
+        Longitude = lon;
+
+    }
+
+    public double getLat()
+    {
+        return Latitude;
+    }
+
+    public double getLon()
+    {
+        return Longitude;
+    }
+
+    public String getCity()
+    {
+        return City;
+    }
+}
+
+// ------------------------------------------ WEATHER INSTANCE
+class WeatherInstance
+{
+    private WeatherInfo weatherinfo;
+    private SunInfo suninfo;
+    private AirPollutionInfo airpolinfo;
+    private ArrayList<WeatherInfo> fivedayinfo;
+    private DateTime date;
+    private Location location;
+
+    public WeatherInstance()
+    {
+
+    }
+
+    public WeatherInstance(DateTime date, Location location, WeatherInfo weatherinfo, SunInfo suninfo, 
+    AirPollutionInfo airpolinfo, ArrayList<WeatherInfo> fivedayinfo)
+    {
+        this.date = date;
+        this.location = location;
+        this.weatherinfo = weatherinfo;
+        this.suninfo = suninfo;
+        this.airpolinfo = airpolinfo;
+        this.fivedayinfo = fivedayinfo;
+    }
+
+    public DateTime getDate()
+    {
+        return date;
+    }
+
+    public Location getLocation()
+    {
+        return location;
+    }
+
+    public WeatherInfo getWeatherInfo()
+    {
+        return weatherinfo;
+    }
+
+    public SunInfo getSunInfo()
+    {
+        return suninfo;
+    }
+
+    public AirPollutionInfo getAirPollutionInfo()
+    {
+        return airpolinfo;
+    }
+    
+    public ArrayList<WeatherInfo> getFiveDayWeather()
+    {
+        return fivedayinfo;
+    }
+
+    public void setDate(DateTime date)
+    {
+        this.date = date;
+    }
+
+    public void setLocation(Location loc)
+    {
+        this.location = loc;
+    }
+    
+    public void setWeatherInfo(WeatherInfo weatherInfo)
+    {
+        this.weatherinfo = weatherInfo;
+    }
+
+    public void setAirPollutionInfo(AirPollutionInfo airpolinfo)
+    {
+        this.airpolinfo = airpolinfo;
+    }
+
+    public void setSunInfo(SunInfo sunInfo)
+    {
+        this.suninfo = sunInfo;
+    }
+
+}
