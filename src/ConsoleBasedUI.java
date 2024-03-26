@@ -68,10 +68,11 @@ public class ConsoleBasedUI implements HomepageInfo {
         System.out.print("Enter location: ");
         String location = scanner.nextLine();
         WeatherInfo weatherInfo = weatherAPI.getInfo(location);
+        SunInfo sunTimes = weatherAPI.getSunTimes(location);
         DisplayWeather displayWeather = new DisplayWeather();
         if (weatherInfo != null) {
             System.out.println("Current Weather:");
-            System.out.println(displayWeather.displayWeather(weatherInfo, location));
+            System.out.println(displayWeather.displayWeather(weatherInfo, location, sunTimes));
         } 
         else
          {
