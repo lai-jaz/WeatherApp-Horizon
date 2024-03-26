@@ -1,5 +1,6 @@
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 
 public class Info {
     
@@ -152,10 +153,26 @@ class SunInfo extends Info
 class DateTime
 {
     LocalDateTime datetime;
+    String date;
+    String time;
 
-    DateTime()
+    public DateTime()
     {
         datetime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
+        date = datetime.format(formatter);
+        time = datetime.format(formatterTime);
+    }
+
+    public String getDate()
+    {
+        return date;
+    }
+
+    public String getTime()
+    {
+        return time;
     }
 }
 
@@ -170,7 +187,7 @@ class Location
     {
         Latitude = lat;
         Longitude = lon;
-
+        this.City = City;
     }
 
     public double getLat()
