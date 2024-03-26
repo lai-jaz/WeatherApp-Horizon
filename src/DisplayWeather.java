@@ -141,9 +141,8 @@ public class DisplayWeather extends JFrame{
     public DisplayWeather() {
     }
 
-    public String displayWeather(WeatherInfo obj, String location)
+    public String displayWeather(WeatherInfo obj, String location, SunInfo obj2)
     {
-        // Display elements from API return on GUI
         String DisplayInfoGUI = "Weather for " + location
                             + "\nVisibility: " + obj.getVisibility() + "m\n" 
                             + "Humidity: " + obj.getHumidity() + "%\n"
@@ -151,7 +150,10 @@ public class DisplayWeather extends JFrame{
                             + "Weather Description: " + obj.getWeatherDescr() + "\n"
                             + "Temperature: " + obj.getTemperature() + "°C\n"
                             + "Rain Volume (past 1h): " + obj.getRainVol1h() + "mm\n"
-                            + "Rain Volume (past 3h): " + obj.getRainVol3h() + "mm\n";
+                            + "Rain Volume (past 3h): " + obj.getRainVol3h() + "mm\n"
+                            + "Sunrise Time: " + obj2.getSunrise_Time() + "\n"
+                            + "Sunset Time: " + obj2.getSunset_Time() + "\n";
+
 
         return DisplayInfoGUI;
     }
