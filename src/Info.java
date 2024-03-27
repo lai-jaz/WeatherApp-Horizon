@@ -287,4 +287,9 @@ class WeatherInstance
         this.suninfo = sunInfo;
     }
 
+    public void setFiveDayWeather(ArrayList<WeatherInfo> fiveDayWeather) 
+    {
+        this.fivedayinfo = fiveDayWeather;
+    }
+
 }
