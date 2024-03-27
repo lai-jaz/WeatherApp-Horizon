@@ -16,12 +16,11 @@ public class AirPollutionAPI extends API
     private double Latitude;
     private double Longitude;
 
-    // return API info in json format
     @Override 
     public String APIcall(String location)
     {
         try {
-            String geocode = this.APIGeoCode(location); // get latitude and longitude  from the geolocation
+            String geocode = this.APIGeoCode(location); 
             this.getLatLong(geocode);
 
             String apiUrl = String.format(API_URL, Latitude, Longitude, API_KEY);
@@ -89,13 +88,13 @@ public class AirPollutionAPI extends API
     {
         String weatherData = this.APIcall(location);
 
-        // Parse the JSON response
+   
         JSONObject jsonObject = new JSONObject(weatherData);
         AirPollutionInfo obj = getFormData(jsonObject, weatherData);
         return obj;
     }
 
-    // make weather info object using the JSONObject
+  
     public AirPollutionInfo getFormData(JSONObject jsonObject, String weatherData)
     {
         double AQI = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("main").getDouble("aqi");
@@ -126,10 +125,10 @@ public class AirPollutionAPI extends API
     double lat = 0, longi = 0;
     JSONArray jsonArray = new JSONArray(geoJSON);
     for (int i = 0; i < jsonArray.length(); i++) {
-        // Access each object within the array
+ 
         JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-        // Remove the inner loop that iterates over keys
+
         lat = jsonObject.getDouble("lat");
         longi = jsonObject.getDouble("lon");
     }
@@ -158,7 +157,7 @@ class DisplayAirPollution extends JFrame{
         double pm2_5 = obj.getpm2_5();
         double pm10 = obj.getpm10();
 
-            // Display elements from API return on GUI
+     
         String DisplayInfoGUI = "Air Pollution data for " + location + "\n"
                                 + "AQI: " + Aqi 
                                 + "\nCarbon Monoxide: " + co + " μg/m3"
