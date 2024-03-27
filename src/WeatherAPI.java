@@ -1,5 +1,3 @@
-import javax.swing.*;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -10,9 +8,9 @@ import org.json.JSONArray;
 
 
 /*  TO DO:
-    1. Add multiple locations to check weather with longitude and latitude. []
+    1. Add multiple locations to check weather with longitude and latitude. [X]
     7. Add timestamp for weather records [X]
-    8. Implement Cache Management []
+    8. Implement Cache Management [x]
 
     DONE:
     2. Add multiple locations to check weather with city/country name. [X]
@@ -26,14 +24,11 @@ import org.json.JSONArray;
     12. Show data about polluting gasses. [X]
 */
 
-// make class that ONLY handles api call and makes object for Weather Instance
-
-class WeatherAPI extends API
+public class WeatherAPI extends API
 {
     private static final String API_KEY = "42c9e7c4ab03739b4d29f144eaef927b";
     private static final String API_URL = "http://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s&units=metric";
     
-    // return API info in json format
     @Override 
     public String APIcall(String location)
     {
@@ -46,7 +41,7 @@ class WeatherAPI extends API
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                // Info from API call
+                //---------------------------Info from API call
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -71,13 +66,12 @@ class WeatherAPI extends API
     {
         String weatherData = this.APIcall(location);
 
-        // Parse the JSON response
         JSONObject jsonObject = new JSONObject(weatherData);
         WeatherInfo obj = getFormData(jsonObject, weatherData);
         return obj;
     }
 
-    // make weather info object using the JSONObject
+    //---------------------------- Make WeatherInfo Object
     public WeatherInfo getFormData(JSONObject jsonObject, String weatherData)
     {
         double temperature = jsonObject.getJSONObject("main").getDouble("temp");
@@ -110,37 +104,19 @@ class WeatherAPI extends API
     {
         String weatherData = this.APIcall(location);
 
-        // Parse the JSON response
         JSONObject jsonObject = new JSONObject(weatherData);
-
-        // Retrieve sunrise and sunset times from JSON
         long sunriseUnix = jsonObject.getJSONObject("sys").getLong("sunrise");
         long sunsetUnix = jsonObject.getJSONObject("sys").getLong("sunset");
 
-        // SunInfo Object that stores and converts Unix times
        SunInfo sun_info = new SunInfo(sunsetUnix, sunriseUnix);
        return sun_info; 
     }
-   
-    @Override 
-    public void setLatitude(double lati)
-    {
-        Latitude = lati;
-    }
 
-    @Override 
-    public void setLongitude(double longi)
-    {
-        Longitude = longi;
-    }
 }
 
-
-public class DisplayWeather extends JFrame{
+// ----------------------------------------Turns obj info into a string
+class DisplayWeather{
     
-    public DisplayWeather() {
-    }
-
     public String displayWeather(WeatherInfo obj, String location, SunInfo obj2)
     {
         String DisplayInfoGUI = "Weather for " + location

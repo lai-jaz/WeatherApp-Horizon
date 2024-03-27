@@ -9,17 +9,18 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 
-class AirPollutionAPI extends API
+public class AirPollutionAPI extends API
 {
     private static final String API_KEY = "42c9e7c4ab03739b4d29f144eaef927b";
     private static final String API_URL = "http://api.openweathermap.org/data/2.5/air_pollution?lat=%s&lon=%s&appid=%s";
+    private double Latitude;
+    private double Longitude;
 
-    // return API info in json format
     @Override 
     public String APIcall(String location)
     {
         try {
-            String geocode = this.APIGeoCode(location); // get latitude and longitude  from the geolocation
+            String geocode = this.APIGeoCode(location); 
             this.getLatLong(geocode);
 
             String apiUrl = String.format(API_URL, Latitude, Longitude, API_KEY);
@@ -30,7 +31,6 @@ class AirPollutionAPI extends API
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                // Info from API call
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -62,7 +62,7 @@ class AirPollutionAPI extends API
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                // Info from API call
+           
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -87,13 +87,13 @@ class AirPollutionAPI extends API
     {
         String weatherData = this.APIcall(location);
 
-        // Parse the JSON response
+   
         JSONObject jsonObject = new JSONObject(weatherData);
         AirPollutionInfo obj = getFormData(jsonObject, weatherData);
         return obj;
     }
 
-    // make weather info object using the JSONObject
+  
     public AirPollutionInfo getFormData(JSONObject jsonObject, String weatherData)
     {
         double AQI = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("main").getDouble("aqi");
@@ -110,13 +110,11 @@ class AirPollutionAPI extends API
         return obj;
     }
 
-    @Override 
     public void setLatitude(double lati)
     {
         Latitude = lati;
     }
-
-    @Override 
+ 
     public void setLongitude(double longi)
     {
         Longitude = longi;
@@ -126,10 +124,10 @@ class AirPollutionAPI extends API
     double lat = 0, longi = 0;
     JSONArray jsonArray = new JSONArray(geoJSON);
     for (int i = 0; i < jsonArray.length(); i++) {
-        // Access each object within the array
+ 
         JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-        // Remove the inner loop that iterates over keys
+
         lat = jsonObject.getDouble("lat");
         longi = jsonObject.getDouble("lon");
     }
@@ -140,7 +138,7 @@ class AirPollutionAPI extends API
 
 }
 
-public class DisplayAirPollution extends JFrame{
+class DisplayAirPollution extends JFrame{
     
     public DisplayAirPollution() {
        
@@ -158,7 +156,7 @@ public class DisplayAirPollution extends JFrame{
         double pm2_5 = obj.getpm2_5();
         double pm10 = obj.getpm10();
 
-            // Display elements from API return on GUI
+     
         String DisplayInfoGUI = "Air Pollution data for " + location + "\n"
                                 + "AQI: " + Aqi 
                                 + "\nCarbon Monoxide: " + co + " μg/m3"
