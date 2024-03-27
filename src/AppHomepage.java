@@ -26,7 +26,7 @@ public class AppHomepage extends JFrame implements HomepageInfo {
             getContentPane().setBackground(new Color(240, 240, 240));
             setLayout(new BorderLayout());
         
-            // Set program icon
+            // ------------------------Set program icon
             ImageIcon programIcon = new ImageIcon("4052984.png");
             setIconImage(programIcon.getImage());
         
@@ -54,7 +54,7 @@ public class AppHomepage extends JFrame implements HomepageInfo {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         panel.setBackground(new Color(240, 240, 240));
 
-        // Add logo
+        // ----------------------------------Add logo
         ImageIcon logoIcon = new ImageIcon("4052984.png"); 
         Image scaledImage = logoIcon.getImage().getScaledInstance(32, -1, Image.SCALE_SMOOTH);
         ImageIcon scaledLogoIcon = new ImageIcon(scaledImage);
@@ -63,15 +63,15 @@ public class AppHomepage extends JFrame implements HomepageInfo {
         
 
         JLabel locationLabel = new JLabel("Enter Location:");
-        locationLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        locationLabel.setFont(new Font("Century Gothic", Font.BOLD, 18));
         panel.add(locationLabel);
 
         locationField = new JTextField(20);
-        locationField.setFont(new Font("Arial", Font.PLAIN, 16));
+        locationField.setFont(new Font("Century Gothic", Font.BOLD, 16));
         panel.add(locationField);
 
-        getWeatherButton = new JButton("Get Weather");
-        getWeatherButton.setFont(new Font("Arial", Font.BOLD, 16));
+        getWeatherButton = new JButton("Show Weather");
+        getWeatherButton.setFont(new Font("Century Goth", Font.BOLD, 16));
         getWeatherButton.setBackground(new Color(34, 40, 49));
         getWeatherButton.setForeground(Color.WHITE);
         panel.add(getWeatherButton);
@@ -83,35 +83,47 @@ public class AppHomepage extends JFrame implements HomepageInfo {
 
             try {
             
-                DBWeatherInstance handler = new DBWeatherInstance("jdbc:mysql://localhost:3306/Horizon", "root", "12345678");
+                // MYSQL DB 
+                DBWeatherInstance handler = new DBWeatherInstance();
+                
+                // TXT FILE DB
+                //DB2WeatherInstance handler = new DB2WeatherInstance();
 
                 String location = locationField.getText();
-
-                WeatherAPI weather_api = new WeatherAPI();
-                WeatherInfo weather = weather_api.getInfo(location);
-                SunInfo suninfo = weather_api.getSunTimes(location);
-
-                AirPollutionAPI airPollution_api = new AirPollutionAPI();
-                AirPollutionInfo airpol = airPollution_api.getInfo(location);
-
-                FiveDayAPI fiveday_api = new FiveDayAPI();
-                ArrayList<WeatherInfo> fivedayweather = fiveday_api.getInfo(location);
-
+                
                 DateTime date = new DateTime();
                 Location locationObj = new Location(1.0, 1.0, location);
+                WeatherInstance weather_inst = new WeatherInstance();
 
-                WeatherInstance weather_inst = new WeatherInstance(date, locationObj, weather, suninfo, airpol, fivedayweather);
+                WeatherInfo weather = handler.checkTopValueWeather(date.getDate(), location);
+                AirPollutionInfo airpol = handler.checkTopValueAirPol(date.getDate(), location);
+                ArrayList<WeatherInfo> fivedayweather = handler.checkTopValueFiveDay(date.getDate(), location);
 
+                WeatherAPI weather_api = new WeatherAPI();
+                AirPollutionAPI airPollution_api = new AirPollutionAPI();
+                FiveDayAPI fiveday_api = new FiveDayAPI();
+                SunInfo suninfo = weather_api.getSunTimes(location);
+
+                // API CALL if the object returned from cache managing functions is NULL 
+                if(weather == null)
+                {
+                    weather = weather_api.getInfo(location);
+                    airpol = airPollution_api.getInfo(location);
+                    fivedayweather = fiveday_api.getInfo(location);
+                    weather_inst = new WeatherInstance(date, locationObj, weather, suninfo, airpol, fivedayweather);
+
+                    handler.saveInfo(weather_inst);
+                }
+                else{
+                    weather_inst = new WeatherInstance(date, locationObj, weather, suninfo, airpol, fivedayweather);
+                }
+                
                 displayInfo(weather_inst, weather, location);
-
-                handler.saveInfo(weather_inst);
-
-            } catch (SQLException er) {
+            }
+            catch (SQLException er) {
                 System.out.println("Could not connect");
                 er.printStackTrace();
             }
-
-        
 
             }
         });
@@ -131,7 +143,7 @@ public class AppHomepage extends JFrame implements HomepageInfo {
         fiveDayWeatherOutputArea = new JTextArea(fiveDayWeatherOutput);
         airPollutionOutputArea = new JTextArea(airPollutionOutput);
 
-        Font font = new Font("Arial", Font.PLAIN, 16);
+        Font font = new Font("Century Gothic", Font.PLAIN, 16);
         currentWeatherOutputArea.setFont(font);
         fiveDayWeatherOutputArea.setFont(font);
         airPollutionOutputArea.setFont(font);
@@ -163,57 +175,41 @@ public class AppHomepage extends JFrame implements HomepageInfo {
 
         airPollutionPanel.removeAll();
         airPollutionPanel.add(airPollutionScrollPane, BorderLayout.CENTER);
+       
         // Generating Notification for Poor Weather Conditions
-    
-        // 1) Heavy Rainfall
+        // --------------------------1) Heavy Rainfall
         if (weather.getRainVol1h() >= 30.0) {
-            // Display Notification
             JOptionPane.showMessageDialog(getWeatherButton, "Heavy rainfall! Rain volume in the past 1 hour: " + weather.getRainVol1h() + " mm", "Weather Alert", JOptionPane.WARNING_MESSAGE);
         }
-    
-        // 2) Thunderstorms
+        // --------------------------2) Thunderstorms
         if (weather.getWeatherDescr().equalsIgnoreCase("thunderstorm")) {
-            // Display Thunderstorm Alert
             JOptionPane.showMessageDialog(getWeatherButton, "Thunderstorm alert!", "Weather Alert", JOptionPane.WARNING_MESSAGE);
         }
-
-
-        // 3) Check for extreme heat
+        // --------------------------3) Check for extreme heat
         if (weather.getTemperature() > 35.0) {
-            // Extreme Heat
             JOptionPane.showMessageDialog(getWeatherButton, "Extreme heat warning! Temperature: " + weather.getTemperature() + " C", "Weather Alert", JOptionPane.WARNING_MESSAGE);
         }
-    
-        // 4) Check for extreme cold
+        // ---------------------------4) Check for extreme cold
         if (weather.getTemperature() < -10.0) {
-            // Extreme Cold
             JOptionPane.showMessageDialog(getWeatherButton, "Extreme cold warning! Temperature: " + weather.getTemperature() + " C", "Weather Alert", JOptionPane.WARNING_MESSAGE);
         }
-    
-        // 5) Check for snowfall or blizzard
+        // ----------------------------5) Check for snowfall or blizzard
         if (weather.getWeatherDescr().toLowerCase().contains("snow") || weather.getWeatherDescr().toLowerCase().contains("blizzard")) {
-            // Snowfall/Blizzard
             JOptionPane.showMessageDialog(getWeatherButton, "Snowfall/Blizzard alert!", "Weather Alert", JOptionPane.WARNING_MESSAGE);
         }
-    
-        // 6) Check for hurricanes
+        // ----------------------------6) Check for hurricanes
         if (weather.getWeatherDescr().toLowerCase().contains("hurricane")) {
-            // Hurricane
             JOptionPane.showMessageDialog(getWeatherButton, "Hurricane alert!", "Weather Alert", JOptionPane.WARNING_MESSAGE);
         }
 
+        // Generating Notification for Poor or Very Poor Air Quality Index
         double aqi = weather_inst.getAirPollutionInfo().getAirQualityIndex();
-        //Checking the AQI scale for poor or very poor air quality
         if (aqi == 4 || aqi == 5) {
-            //Display notification
             JOptionPane.showMessageDialog(this, "Poor air quality detected! AQI: " + aqi, "Air Quality Alert", JOptionPane.WARNING_MESSAGE);
         }
     
-    
-
         tabbedPane.revalidate();
         tabbedPane.repaint();
-        
     }
 
     public static void main(String[] args) {
