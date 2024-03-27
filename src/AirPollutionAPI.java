@@ -31,7 +31,6 @@ public class AirPollutionAPI extends API
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                // Info from API call
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -63,7 +62,7 @@ public class AirPollutionAPI extends API
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                // Info from API call
+           
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
                 StringBuilder response = new StringBuilder();
