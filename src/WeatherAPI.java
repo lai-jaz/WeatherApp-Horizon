@@ -4,25 +4,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.json.JSONObject;
-import org.json.JSONArray;
-
-
-/*  TO DO:
-    1. Add multiple locations to check weather with longitude and latitude. [X]
-    7. Add timestamp for weather records [X]
-    8. Implement Cache Management [x]
-
-    DONE:
-    2. Add multiple locations to check weather with city/country name. [X]
-    3. Show current weather conditions. [X]
-    4. Show basic information like “Feels like, minimum and maximum temperature” etc [X]
-    5. Show sunrise and sunset time. [X]
-    6. Show weather forecast for 5 days. [X]
-    9. Generate Notification for poor weather conditions. [X]
-    10. Show Air Pollution data. [X]
-    11. Generate Notification for poor air quality.  [X]
-    12. Show data about polluting gasses. [X]
-*/
 
 public class WeatherAPI extends API
 {
@@ -54,11 +35,11 @@ public class WeatherAPI extends API
             
             else 
             {
-                return "Error: Unable to fetch weather data. Response code: " + responseCode;
+                return "Connection error. Response code: " + responseCode;
             }
         } 
         catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return "Error: Unable to fetch weather data\nException: " + e.getMessage();
         }
     }
 
@@ -74,13 +55,21 @@ public class WeatherAPI extends API
     //---------------------------- Make WeatherInfo Object
     public WeatherInfo getFormData(JSONObject jsonObject, String weatherData)
     {
-        double temperature = jsonObject.getJSONObject("main").getDouble("temp");
-        double feelsLike = jsonObject.getJSONObject("main").getDouble("feels_like");
-        double humidity = jsonObject.getJSONObject("main").getDouble("humidity");
-        int visibility = jsonObject.getInt("visibility");
-        JSONArray weatherArray = jsonObject.getJSONArray("weather");
-        JSONObject weatherObject = weatherArray.getJSONObject(0);
-        String description = weatherObject.getString("description");
+        double temperature = tryExtractDouble(jsonObject,"main","temp");
+        double feelsLike = tryExtractDouble(jsonObject,"main","feels_like");
+        double humidity = tryExtractDouble(jsonObject,"main","humidity");
+
+        //visibility exception handling
+        int visibility;
+        try{
+            visibility = jsonObject.getInt("visibility");
+        }
+        catch (Exception e)
+        {
+            visibility = -1;
+        }
+
+        String description =tryExtractString(jsonObject, "description");
 
         double rainVol1h = 0.0;
         double rainVol3h = 0.0;
@@ -88,11 +77,11 @@ public class WeatherAPI extends API
         {
             if(weatherData.contains("\"rain\": {\"1h\":"))
             {
-                rainVol1h = jsonObject.getJSONObject("rain").getInt("1h");
+                rainVol1h = tryExtractDouble(jsonObject,"rain","1h");
             }
             if(weatherData.contains("\"rain\"") && weatherData.contains("\"3h\":"))
             {
-                rainVol3h = jsonObject.getJSONObject("rain").getInt("3h");
+                rainVol3h = tryExtractDouble(jsonObject,"rain","3h");
             }
         }
 
@@ -111,27 +100,92 @@ public class WeatherAPI extends API
        SunInfo sun_info = new SunInfo(sunsetUnix, sunriseUnix);
        return sun_info; 
     }
+    //----------------------------------exception handling for double value
+    private double tryExtractDouble(JSONObject jsonObject, String key1, String key2)
+    {
+        double defaultvalue = -1.0;
+        try {
+            return jsonObject.getJSONObject(key1).getDouble(key2);
+        } catch (Exception e) {
+            return defaultvalue;
+        }
+        
+    }
+    private String tryExtractString(JSONObject jsonObject, String key) 
+    {
+        String defaultValue = "";
+        try {
+            return jsonObject.getJSONArray("weather").getJSONObject(0).getString(key);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
 
 }
 
 // ----------------------------------------Turns obj info into a string
 class DisplayWeather{
+
+    //for double
+    public String checkNA(double value)
+    {
+        if(value == -1)
+        {
+            return "N/A";
+        }
+        else
+            return String.valueOf(value);
+    }
+
+    //for int
+    public String checkNA(int value)
+    {
+        if(value == -1)
+        {
+            return "N/A";
+        }
+        else
+            return String.valueOf(value);
+    }
+
+    //for string
+    public String checkNA(String value)
+    {
+        if(value=="")
+        {
+            return "N/A";
+        }
+        else
+            return String.valueOf(value);
+    }
+    
     
     public String displayWeather(WeatherInfo obj, String location, SunInfo obj2)
     {
+        int visibility = obj.getVisibility();
+        double humidity = obj.getHumidity();
+        double feels_like = obj.getFeelsLike();
+        String desc= obj.getWeatherDescr();
+        double temperature = obj.getTemperature();
+        double rain1 = obj.getRainVol1h();
+        double rain3 = obj.getRainVol3h();
+        String sunsetTime = obj2.getSunset_Time();
+        String sunriseTime= obj2.getSunrise_Time();
+        
         String DisplayInfoGUI = "Weather for " + location
-                            + "\nVisibility: " + obj.getVisibility() + "m\n" 
-                            + "Humidity: " + obj.getHumidity() + "%\n"
-                            + "Feels like: " + obj.getFeelsLike() + "°C\n"
-                            + "Weather Description: " + obj.getWeatherDescr() + "\n"
-                            + "Temperature: " + obj.getTemperature() + "°C\n"
-                            + "Rain Volume (past 1h): " + obj.getRainVol1h() + "mm\n"
-                            + "Rain Volume (past 3h): " + obj.getRainVol3h() + "mm\n"
-                            + "Sunrise Time: " + obj2.getSunrise_Time() + "\n"
-                            + "Sunset Time: " + obj2.getSunset_Time() + "\n";
+                            + "\nVisibility: " + checkNA(visibility) + "m\n" 
+                            + "Humidity: " + checkNA(humidity) + "%\n"
+                            + "Feels like: " + checkNA(feels_like) + "°C\n"
+                            + "Weather Description: " + checkNA(desc) + "\n"
+                            + "Temperature: " + checkNA(temperature) + "°C\n"
+                            + "Rain Volume (past 1h): " + checkNA(rain1) + "mm\n"
+                            + "Rain Volume (past 3h): " + checkNA(rain3) + "mm\n"
+                            + "Sunrise Time: " + checkNA(sunriseTime) + "\n"
+                            + "Sunset Time: " + checkNA(sunsetTime) + "\n";
 
 
         return DisplayInfoGUI;
     }
        
 }
+

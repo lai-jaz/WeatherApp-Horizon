@@ -135,17 +135,32 @@ class SunInfo extends Info
     // Getters for SunInfo properties
     public String getSunrise_Time()
     {
-        return sunrise_time;
+        try{
+            return sunrise_time;
+        }
+        catch(Exception e){
+            return "";
+        }
     }
 
     public String getSunset_Time()
     {
-        return sunset_time;
+        try{
+            return sunset_time;
+        }
+        catch(Exception e){
+            return "";
+        }
     }
 
-    private String convertUnixTime(long unixTime) {
-        java.util.Date time = new java.util.Date(unixTime * 1000);
-        return new java.text.SimpleDateFormat("HH:mm:ss").format(time);
+   private String convertUnixTime(long unixTime) 
+   {
+        try {
+            java.util.Date time = new java.util.Date(unixTime * 1000);
+            return new java.text.SimpleDateFormat("HH:mm:ss").format(time);
+        } catch (Exception e) {
+            return "";
+        }
     }
 }
 

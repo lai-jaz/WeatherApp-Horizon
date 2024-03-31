@@ -16,11 +16,12 @@ public class AirPollutionAPI extends API
     private double Latitude;
     private double Longitude;
 
+
     @Override 
     public String APIcall(String location)
     {
         try {
-            String geocode = this.APIGeoCode(location); 
+            String geocode = this.APIGeoCode(location);
             this.getLatLong(geocode);
 
             String apiUrl = String.format(API_URL, Latitude, Longitude, API_KEY);
@@ -31,6 +32,7 @@ public class AirPollutionAPI extends API
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
+                // Info from API call
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -43,11 +45,11 @@ public class AirPollutionAPI extends API
             
             else 
             {
-                return "Error: Unable to fetch weather data. Response code: " + responseCode;
+                return "Connection error. Response code: " + responseCode;
             }
         } 
         catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return "Error: Unable to fetch air pollution data. Exception: " + e.getMessage();
         }
     }
 
@@ -62,7 +64,7 @@ public class AirPollutionAPI extends API
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
-           
+                // Info from API call
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
                 StringBuilder response = new StringBuilder();
@@ -75,11 +77,11 @@ public class AirPollutionAPI extends API
             
             else 
             {
-                return "Error: Unable to fetch weather data. Response code: " + responseCode;
+                return "Connection error. Response code: " + responseCode;
             }
         } 
         catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return "Error: Unable to fetch location. Exception: " + e.getMessage();
         }
     }
 
@@ -87,27 +89,42 @@ public class AirPollutionAPI extends API
     {
         String weatherData = this.APIcall(location);
 
-   
+        if(weatherData.charAt(0)!='{')
+        {
+            weatherData = '{' + weatherData + "}";
+        }
+
         JSONObject jsonObject = new JSONObject(weatherData);
         AirPollutionInfo obj = getFormData(jsonObject, weatherData);
         return obj;
     }
 
-  
     public AirPollutionInfo getFormData(JSONObject jsonObject, String weatherData)
     {
-        double AQI = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("main").getDouble("aqi");
-        double CO = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("co");
-        double NO = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("no");
-        double NO2 = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("no2");
-        double Oz = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("o3");
-        double SO2 = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("so2");
-        double ammonia = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("nh3");
-        double pm2_5 = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("pm2_5");
-        double pm10 = jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("components").getDouble("pm10");
+        double AQI = tryExtractDouble(jsonObject, "aqi", "main");
+        double CO = tryExtractDouble(jsonObject, "co", "components");
+        double NO = tryExtractDouble(jsonObject, "no", "components");
+        double NO2 = tryExtractDouble(jsonObject, "no2", "components");
+        double Oz = tryExtractDouble(jsonObject, "o3", "components");
+        double SO2 = tryExtractDouble(jsonObject, "so2", "components");
+        double ammonia = tryExtractDouble(jsonObject, "nh3", "components");
+        double pm2_5 = tryExtractDouble(jsonObject, "pm2_5", "components");
+        double pm10 = tryExtractDouble(jsonObject, "pm10", "components");
 
         AirPollutionInfo obj = new AirPollutionInfo(AQI, CO, NO, NO2, Oz, SO2, ammonia, pm2_5, pm10);
         return obj;
+    }
+
+    //----------------------------------exception handling for double value
+    private double tryExtractDouble(JSONObject jsonObject, String key, String obj)
+    {
+        double defaultvalue = -1.0;
+        try {
+            return jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject(obj).getDouble(key);
+        } catch (Exception e) {
+            return defaultvalue;
+        }
+        
     }
 
     public void setLatitude(double lati)
@@ -121,27 +138,31 @@ public class AirPollutionAPI extends API
     }
 
     public void getLatLong(String geoJSON) {
-    double lat = 0, longi = 0;
-    JSONArray jsonArray = new JSONArray(geoJSON);
-    for (int i = 0; i < jsonArray.length(); i++) {
- 
-        JSONObject jsonObject = jsonArray.getJSONObject(i);
+        double lat = 0, longi = 0;
+        JSONArray jsonArray = new JSONArray(geoJSON);
+        for (int i = 0; i < jsonArray.length(); i++) {
 
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            lat = jsonObject.getDouble("lat");
+            longi = jsonObject.getDouble("lon");
+        }
 
-        lat = jsonObject.getDouble("lat");
-        longi = jsonObject.getDouble("lon");
+        this.setLatitude(lat);
+        this.setLongitude(longi);
     }
-
-    this.setLatitude(lat);
-    this.setLongitude(longi);
-}
 
 }
 
 class DisplayAirPollution extends JFrame{
     
-    public DisplayAirPollution() {
-       
+    public String checkNA(double value)
+    {
+        if(value == -1)
+        {
+            return "N/A";
+        }
+        else
+            return String.valueOf(value);
     }
 
     public String displayAirPol(AirPollutionInfo obj, String location)
@@ -156,17 +177,16 @@ class DisplayAirPollution extends JFrame{
         double pm2_5 = obj.getpm2_5();
         double pm10 = obj.getpm10();
 
-     
         String DisplayInfoGUI = "Air Pollution data for " + location + "\n"
-                                + "AQI: " + Aqi 
-                                + "\nCarbon Monoxide: " + co + " μg/m3"
-                                + "\nNitrogen Monoxide: " + no + " μg/m3"
-                                + "\nNitrogen Dioxide: " + no2 + " μg/m3"
-                                + "\nOzone: " + oz + " μg/m3"
-                                + "\nSulfur Dioxide: " + so2 + " μg/m3"
-                                + "\nAmmonia: " + ammonia + " μg/m3"
-                                + "\nCoarse particulate matter: " + pm10 + " μg/m3"
-                                + "\nFine particles matter: " + pm2_5 + " μg/m3\n";
+                                + "AQI: " + checkNA(Aqi) 
+                                + "\nCarbon Monoxide: " + checkNA(co) + " μg/m3"
+                                + "\nNitrogen Monoxide: " + checkNA(no) + " μg/m3"
+                                + "\nNitrogen Dioxide: " + checkNA(no2) + " μg/m3"
+                                + "\nOzone: " + checkNA(oz) + " μg/m3"
+                                + "\nSulfur Dioxide: " + checkNA(so2) + " μg/m3"
+                                + "\nAmmonia: " + checkNA(ammonia) + " μg/m3"
+                                + "\nCoarse particulate matter: " + checkNA(pm10) + " μg/m3"
+                                + "\nFine particles matter: " + checkNA(pm2_5) + " μg/m3\n";
 
         return DisplayInfoGUI;
     }
