@@ -155,7 +155,7 @@ public class AirPollutionAPI extends API
 
 class DisplayAirPollution extends JFrame{
     
-    public String checkNA(Double value)
+    public String checkNA(double value)
     {
         if(value == -1)
         {
