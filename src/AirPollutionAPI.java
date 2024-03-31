@@ -101,26 +101,26 @@ public class AirPollutionAPI extends API
 
     public AirPollutionInfo getFormData(JSONObject jsonObject, String weatherData)
     {
-        double AQI = tryExtractDouble(jsonObject, "aqi");
-        double CO = tryExtractDouble(jsonObject, "co");
-        double NO = tryExtractDouble(jsonObject, "no");
-        double NO2 = tryExtractDouble(jsonObject, "no2");
-        double Oz = tryExtractDouble(jsonObject, "o3");
-        double SO2 = tryExtractDouble(jsonObject, "so2");
-        double ammonia = tryExtractDouble(jsonObject, "nh3");
-        double pm2_5 = tryExtractDouble(jsonObject, "pm2_5");
-        double pm10 = tryExtractDouble(jsonObject, "pm10");
+        double AQI = tryExtractDouble(jsonObject, "aqi", "main");
+        double CO = tryExtractDouble(jsonObject, "co", "components");
+        double NO = tryExtractDouble(jsonObject, "no", "components");
+        double NO2 = tryExtractDouble(jsonObject, "no2", "components");
+        double Oz = tryExtractDouble(jsonObject, "o3", "components");
+        double SO2 = tryExtractDouble(jsonObject, "so2", "components");
+        double ammonia = tryExtractDouble(jsonObject, "nh3", "components");
+        double pm2_5 = tryExtractDouble(jsonObject, "pm2_5", "components");
+        double pm10 = tryExtractDouble(jsonObject, "pm10", "components");
 
         AirPollutionInfo obj = new AirPollutionInfo(AQI, CO, NO, NO2, Oz, SO2, ammonia, pm2_5, pm10);
         return obj;
     }
 
     //----------------------------------exception handling for double value
-    private double tryExtractDouble(JSONObject jsonObject, String key)
+    private double tryExtractDouble(JSONObject jsonObject, String key, String obj)
     {
         double defaultvalue = -1.0;
         try {
-            return jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject("main").getDouble(key);
+            return jsonObject.getJSONArray("list").getJSONObject(0).getJSONObject(obj).getDouble(key);
         } catch (Exception e) {
             return defaultvalue;
         }
