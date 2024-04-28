@@ -1,38 +1,30 @@
 //to read user input from the console
 import java.util.Scanner;
 import java.util.ArrayList;
-import java.sql.*;
 
-public class ConsoleBasedUI implements HomepageInfo {
+public class ConsoleBasedUI {
     private Scanner scanner;
-    private DBWeatherInstance dbHandler;
-    
-    //TextFile Database Object
-    //private DB2WeatherInstance dbHandler;
+    private DBManagerInterface dbHandler;
+    private CacheManagerInterface cacheHandler;
     
     //objects of weather api class
     private WeatherAPI weatherAPI;
     private AirPollutionAPI airPollutionAPI;
     private FiveDayAPI fiveDayAPI;
 
-    public void displayLocationForm()
-    {
-
-    }
-
-    public void displayInfo(WeatherInstance weather_inst, WeatherInfo weather, String location)
-    {
-
-    }
-
     //constructor
-    public ConsoleBasedUI()
+    public ConsoleBasedUI(DBManagerInterface obj)
     {
         scanner = new Scanner(System.in);
         try {
-            dbHandler = new DBWeatherInstance();
+            dbHandler = obj;
+            cacheHandler = new DBWeatherInstance();
+                
+                if (obj instanceof CacheManagerInterface) {
+                    cacheHandler = (CacheManagerInterface) obj;
+                }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println("Could not connect");
         }
         
@@ -60,9 +52,9 @@ public class ConsoleBasedUI implements HomepageInfo {
         DateTime datetime = new DateTime();
         Location loc = new Location(0, 0, location);
 
-        WeatherInfo currentWeather = dbHandler.checkTopValueWeather(datetime.getDate(), loc.getCity());
-        AirPollutionInfo airPollutionInfo= dbHandler.checkTopValueAirPol(datetime.getDate(), loc.getCity());
-        ArrayList<WeatherInfo> fiveDayWeather=dbHandler.checkTopValueFiveDay(datetime.getDate(), loc.getCity());
+        WeatherInfo currentWeather = cacheHandler.checkTopValueWeather(datetime.getDate(), loc.getCity());
+        AirPollutionInfo airPollutionInfo= cacheHandler.checkTopValueAirPol(datetime.getDate(), loc.getCity());
+        ArrayList<WeatherInfo> fiveDayWeather=cacheHandler.checkTopValueFiveDay(datetime.getDate(), loc.getCity());
 
         // API CALL ifdatetime.getDate(), loc.getLocation() the object returned from cache managing functions is NULL 
                 if(currentWeather == null)
@@ -183,13 +175,10 @@ public class ConsoleBasedUI implements HomepageInfo {
             System.out.println(display5DayWeather.display5DaysWeather(fivedayweather, weatherInstance.getLocation().getCity()));
         } 
         else 
+        {
           System.out.println("Five Day Forecast Unavailable.");
+        }
        
-    }
-
-    public static void main(String[] args) {
-        ConsoleBasedUI consoleUI = new ConsoleBasedUI();
-        consoleUI.displayMenu();
     }
     
 }
