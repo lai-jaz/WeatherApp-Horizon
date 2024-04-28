@@ -2,15 +2,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
 import java.util.ArrayList;
 
-interface HomepageInfo {
-    void displayLocationForm();
-    void displayInfo(WeatherInstance weather_inst, WeatherInfo weather, String location);
-}
-
-public class AppHomepage extends JFrame implements HomepageInfo {
+public class AppHomepage extends JFrame{
     private JTextField locationField;
     private JTextArea currentWeatherOutputArea;
     private JTextArea fiveDayWeatherOutputArea;
@@ -18,45 +12,77 @@ public class AppHomepage extends JFrame implements HomepageInfo {
     private JButton getWeatherButton;
     private JTabbedPane tabbedPane;
 
-    AppHomepage() {
-
-            setTitle("Hor⚡zon");
-            setSize(800, 600);
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            getContentPane().setBackground(new Color(240, 240, 240));
-            setLayout(new BorderLayout());
+    public AppHomepage(DBManagerInterface obj) {
+        setTitle("Hor⚡zon");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+    
+        // ------------------------Set program icon
+        ImageIcon programIcon = new ImageIcon("4052984.png");
+        setIconImage(programIcon.getImage());
+    
+        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        tabbedPane.setBorder(new EmptyBorder(70, 70, 70, 70)); // Increased border size
+        JPanel currentWeatherPanel = new JPanel(new BorderLayout());
+        JPanel fiveDayWeatherPanel = new JPanel(new BorderLayout());
+        JPanel airPollutionPanel = new JPanel(new BorderLayout());
+    
+        currentWeatherPanel.setBorder(new TitledBorder(new LineBorder(new Color(120,120,200), 5), "Current Weather", TitledBorder.LEFT, TitledBorder.TOP)); // Increased border width
+        fiveDayWeatherPanel.setBorder(new TitledBorder(new LineBorder(new Color(100,100,180), 5), "5-Day Weather Forecast", TitledBorder.LEFT, TitledBorder.TOP)); // Increased border width
+        airPollutionPanel.setBorder(new TitledBorder(new LineBorder(new Color(80,80,160), 5), "Air Quality Index", TitledBorder.LEFT, TitledBorder.TOP)); // Increased border width
+    
+        tabbedPane.addTab("Current Weather", currentWeatherPanel);
+        tabbedPane.addTab("5-Day Forecast", fiveDayWeatherPanel);
+        tabbedPane.addTab("Air Quality", airPollutionPanel);
+    
+        ImageIcon backgroundIcon = new ImageIcon("background.jpeg");
+        JLabel backgroundLabel = new JLabel(backgroundIcon);
+        backgroundLabel.setLayout(new BorderLayout());
+        backgroundLabel.add(tabbedPane, BorderLayout.CENTER);
+    
+        // Add backgroundLabel to the frame
+        add(backgroundLabel, BorderLayout.CENTER);
+    
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        inputPanel.setBackground(new Color(40,46,120));
+    
+        // ----------------------------------Add logo
+        ImageIcon logoIcon = new ImageIcon("4052984.png");
+        Image scaledImage = logoIcon.getImage().getScaledInstance(64, -1, Image.SCALE_SMOOTH);
+        ImageIcon scaledLogoIcon = new ImageIcon(scaledImage);
+        JLabel logoLabel = new JLabel(scaledLogoIcon);
+        inputPanel.add(logoLabel);
+    
+        JLabel locationLabel = new JLabel("Enter Location:");
+        locationLabel.setFont(new Font("Century Gothic", Font.BOLD, 21));
+        locationLabel.setForeground(new Color(200, 233, 225));
+        inputPanel.add(locationLabel);
+    
+        locationField = new JTextField(20);
+        locationField.setFont(new Font("Century Gothic", Font.BOLD, 16));
+        inputPanel.add(locationField);
+    
+        getWeatherButton = new JButton("Show Weather");
+        getWeatherButton.setFont(new Font("Century Goth", Font.BOLD, 16));
+        getWeatherButton.setBackground(new Color(58, 133, 225));
+        getWeatherButton.setForeground(Color.WHITE);
+        inputPanel.add(getWeatherButton);
+    
+        add(inputPanel, BorderLayout.NORTH);
         
-            // ------------------------Set program icon
-            ImageIcon programIcon = new ImageIcon("4052984.png");
-            setIconImage(programIcon.getImage());
-        
-            tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-            JPanel currentWeatherPanel = new JPanel(new BorderLayout());
-            JPanel fiveDayWeatherPanel = new JPanel(new BorderLayout());
-            JPanel airPollutionPanel = new JPanel(new BorderLayout());
-        
-            currentWeatherPanel.setBorder(new TitledBorder("Current Weather"));
-            fiveDayWeatherPanel.setBorder(new TitledBorder("5-Day Weather Forecast"));
-            airPollutionPanel.setBorder(new TitledBorder("Air Quality Index"));
-        
-            tabbedPane.addTab("Current Weather", currentWeatherPanel);
-            tabbedPane.addTab("5-Day Forecast", fiveDayWeatherPanel);
-            tabbedPane.addTab("Air Quality", airPollutionPanel);
-        
-            add(tabbedPane, BorderLayout.CENTER);
-        
-            displayLocationForm();
+            displayLocationForm(obj);
 
     }
     
-    public void displayLocationForm() {
+    public void displayLocationForm(DBManagerInterface obj) {
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panel.setBackground(new Color(240, 240, 240));
+        panel.setBackground(new Color(40, 46, 120));
 
         // ----------------------------------Add logo
         ImageIcon logoIcon = new ImageIcon("4052984.png"); 
-        Image scaledImage = logoIcon.getImage().getScaledInstance(32, -1, Image.SCALE_SMOOTH);
+        Image scaledImage = logoIcon.getImage().getScaledInstance(64, -1, Image.SCALE_SMOOTH);
         ImageIcon scaledLogoIcon = new ImageIcon(scaledImage);
         JLabel logoLabel = new JLabel(scaledLogoIcon);
         panel.add(logoLabel);
@@ -64,6 +90,7 @@ public class AppHomepage extends JFrame implements HomepageInfo {
 
         JLabel locationLabel = new JLabel("Enter Location:");
         locationLabel.setFont(new Font("Century Gothic", Font.BOLD, 18));
+        locationLabel.setForeground(new Color(200, 233, 225));
         panel.add(locationLabel);
 
         locationField = new JTextField(20);
@@ -83,21 +110,24 @@ public class AppHomepage extends JFrame implements HomepageInfo {
 
             try {
             
-                // MYSQL DB 
-                DBWeatherInstance handler = new DBWeatherInstance();
+                // -------------------------------------------INIT DB 
+                DBManagerInterface handler = obj;
+                CacheManagerInterface cachehandler = new DBWeatherInstance();
                 
-                // TXT FILE DB
-                //DB2WeatherInstance handler = new DB2WeatherInstance();
+                if (obj instanceof CacheManagerInterface) {
+                    cachehandler = (CacheManagerInterface) obj;
+                }
 
+                // ------------------------getting location from the form
                 String location = locationField.getText();
                 
                 DateTime date = new DateTime();
                 Location locationObj = new Location(1.0, 1.0, location);
                 WeatherInstance weather_inst = new WeatherInstance();
 
-                WeatherInfo weather = handler.checkTopValueWeather(date.getDate(), location);
-                AirPollutionInfo airpol = handler.checkTopValueAirPol(date.getDate(), location);
-                ArrayList<WeatherInfo> fivedayweather = handler.checkTopValueFiveDay(date.getDate(), location);
+                WeatherInfo weather = cachehandler.checkTopValueWeather(date.getDate(), location);
+                AirPollutionInfo airpol = cachehandler.checkTopValueAirPol(date.getDate(), location);
+                ArrayList<WeatherInfo> fivedayweather = cachehandler.checkTopValueFiveDay(date.getDate(), location);
 
                 WeatherAPI weather_api = new WeatherAPI();
                 AirPollutionAPI airPollution_api = new AirPollutionAPI();
@@ -120,7 +150,7 @@ public class AppHomepage extends JFrame implements HomepageInfo {
                 
                 displayInfo(weather_inst, weather, location);
             }
-            catch (SQLException er) {
+            catch (Exception er) {
                 System.out.println("Could not connect");
                 er.printStackTrace();
             }
@@ -212,12 +242,5 @@ public class AppHomepage extends JFrame implements HomepageInfo {
         tabbedPane.repaint();
     }
 
-    public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new AppHomepage();
-            }
-        });
-    }
 }
+
