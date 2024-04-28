@@ -12,6 +12,7 @@ public class Main {
             System.out.println("Choose the UI:");
             System.out.println("[1] Console UI");
             System.out.println("[2] GUI");
+            System.out.print("Enter your choice: ");
             do{
                 choice = scanner.nextInt();
             }while(choice!=1 && choice!=2);
