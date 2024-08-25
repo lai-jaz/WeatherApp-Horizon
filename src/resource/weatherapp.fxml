@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="556.0" prefWidth="686.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JavafxController">
+    <children>
+      <AnchorPane maxWidth="1.7976931348623157E308" prefHeight="528.0" prefWidth="573.0">
+         <children>
+            <TextField fx:id="locationField" layoutX="70.0" layoutY="25.0" />
+            <Label fx:id="locationLabel" layoutX="14.0" layoutY="29.0" text="Location:" />
+            <Button fx:id="goBtn" layoutX="229.0" layoutY="25.0" mnemonicParsing="false" onAction="#submitLocation" text="Go" />
+            <Label fx:id="currentWeatherLabel" layoutX="15.0" layoutY="62.0" text="Today's Weather">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="currentDate" layoutX="499.0" layoutY="27.0" text="-">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="temp" layoutX="15.0" layoutY="96.0" text="-" />
+            <Label fx:id="enteredLoc" layoutX="408.0" layoutY="27.0" text="-">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="121.0" text="Feels like" />
+            <Label layoutX="15.0" layoutY="138.0" text="Visibility" />
+            <Label layoutX="15.0" layoutY="155.0" text="Humidity" />
+            <Label layoutX="15.0" layoutY="172.0" text="Rain Volume for the past 1h" />
+            <Label layoutX="15.0" layoutY="191.0" text="Rain Volume for the past 3h" />
+            <Label fx:id="weatherDesc" layoutX="75.0" layoutY="96.0" text="-" />
+            <Label fx:id="feelsLike" layoutX="75.0" layoutY="121.0" text="-" />
+            <Label fx:id="visibility" layoutX="75.0" layoutY="138.0" text="-" />
+            <Label fx:id="humidity" layoutX="75.0" layoutY="155.0" text="-" />
+            <Label fx:id="rainVol1h" layoutX="174.0" layoutY="172.0" text="-" />
+            <Label fx:id="rainVol3h" layoutX="174.0" layoutY="191.0" text="-" />
+            <Label fx:id="currentWeatherLabel1" layoutX="15.0" layoutY="221.0" text="Air Pollution">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="aqi" layoutX="60.0" layoutY="250.0" text="-" />
+            <Label layoutX="15.0" layoutY="250.0" text="AQI" />
+            <Label layoutX="15.0" layoutY="267.0" text="CO" />
+            <Label layoutX="15.0" layoutY="284.0" text="NO" />
+            <Label layoutX="15.0" layoutY="301.0" text="NO2" />
+            <Label layoutX="15.0" layoutY="318.0" text="O3" />
+            <Label layoutX="137.0" layoutY="284.0" text="NH3" />
+            <Label layoutX="137.0" layoutY="267.0" text="SO2" />
+            <Label layoutX="137.0" layoutY="301.0" text="pm2_5" />
+            <Label layoutX="137.0" layoutY="318.0" text="pm10" />
+            <Label fx:id="co" layoutX="60.0" layoutY="267.0" text="-" />
+            <Label fx:id="no" layoutX="60.0" layoutY="284.0" text="-" />
+            <Label fx:id="no2" layoutX="60.0" layoutY="301.0" text="-" />
+            <Label fx:id="o3" layoutX="60.0" layoutY="318.0" text="-" />
+            <Label fx:id="so2" layoutX="185.0" layoutY="267.0" text="-" />
+            <Label fx:id="nh3" layoutX="185.0" layoutY="284.0" text="-" />
+            <Label fx:id="pm2_5" layoutX="185.0" layoutY="301.0" text="-" />
+            <Label fx:id="pm10" layoutX="185.0" layoutY="318.0" text="-" />
+            <HBox fx:id="fiveDayHBox" layoutX="97.0" layoutY="394.0" prefHeight="139.0" prefWidth="523.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="2.0" />
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="2.0" />
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="2.0" />
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="2.0" />
+                  <VBox prefHeight="200.0" prefWidth="99.0" spacing="2.0" />
+               </children>
+            </HBox>
+            <Label fx:id="currentWeatherLabel11" layoutX="251.0" layoutY="344.0" text="5 Day Forecast">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <VBox layoutX="12.0" layoutY="394.0" prefHeight="147.0" prefWidth="73.0" spacing="2.0">
+               <children>
+                  <Label prefHeight="17.0" prefWidth="80.0" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="73.0" text="Feels like" />
+                  <Label prefHeight="17.0" prefWidth="73.0" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="73.0" text="Humidity" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="73.0" text="Visibility" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="73.0" text="Rain Vol (1h)" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="17.0" prefWidth="73.0" text="Rain Vol (3h)" />
+               </children>
+            </VBox>
+            <Label fx:id="day1" alignment="CENTER" layoutX="96.0" layoutY="374.0" prefHeight="17.0" prefWidth="104.0" text="Day 1">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="day2" alignment="CENTER" layoutX="195.0" layoutY="374.0" prefHeight="17.0" prefWidth="104.0" text="Day 2">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="day3" alignment="CENTER" layoutX="294.0" layoutY="374.0" prefHeight="17.0" prefWidth="104.0" text="Day 3">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="day4" alignment="CENTER" layoutX="394.0" layoutY="374.0" prefHeight="17.0" prefWidth="104.0" text="Day 4">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="day5" alignment="CENTER" layoutX="495.0" layoutY="374.0" prefHeight="17.0" prefWidth="104.0" text="Day 5">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="day11" alignment="CENTER_RIGHT" layoutX="2.0" layoutY="376.0" prefHeight="17.0" prefWidth="82.0" text="Date" />
+         </children>
+      </AnchorPane>
+    </children>
+</StackPane>
